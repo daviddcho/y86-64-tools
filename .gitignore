@@ -1,2 +1,14 @@
 *.swp
 a.out
+*.o
+*.yo
+
+yis
+yas 
+hcl2c 
+hcl.tab.c 
+hcl.tab.h 
+lex.yy.c 
+yas-grammar.c
+
+
