@@ -675,270 +675,274 @@ stat_t step_state(state_ptr s, FILE *error_file)
     }
 
     switch (hi0) {
-    case I_NOP:
-      s->pc = ftpc;
-      break;
-    case I_HALT:
-      return STAT_HLT;
-      break;
-    case I_RRMOVQ:  /* Both unconditional and conditional moves */
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!reg_valid(hi1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n",
-                  s->pc, hi1);
-          return STAT_INS;
-      }
-      if (!reg_valid(lo1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n",
-                  s->pc, lo1);
-          return STAT_INS;
-      }
-      val = get_reg_val(s->r, hi1);
-      if (cond_holds(s->cc, lo0))
+      case I_NOP:
+        s->pc = ftpc;
+        break;
+      case I_HALT:
+        return STAT_HLT;
+        break;
+      case I_RRMOVQ:  /* Both unconditional and conditional moves */
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!reg_valid(hi1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, hi1);
+            return STAT_INS;
+        }
+        if (!reg_valid(lo1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, lo1);
+            return STAT_INS;
+        }
+        val = get_reg_val(s->r, hi1);
+        if (cond_holds(s->cc, lo0))
+          set_reg_val(s->r, lo1, val);
+        s->pc = ftpc;
+        break;
+      case I_IRMOVQ:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address",
+                    s->pc);
+            return STAT_INS;
+        }
+        if (!reg_valid(lo1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, lo1);
+            return STAT_INS;
+        }
+        set_reg_val(s->r, lo1, cval);
+        s->pc = ftpc;
+        break;
+      case I_RMMOVQ:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_INS;
+        }
+        if (!reg_valid(hi1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, hi1);
+            return STAT_INS;
+        }
+        if (reg_valid(lo1)) 
+            cval += get_reg_val(s->r, lo1);
+        val = get_reg_val(s->r, hi1);
+        if (!set_word_val(s->m, cval, val)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid data address 0x%llx\n",
+                    s->pc, cval);
+            return STAT_ADR;
+        }
+        s->pc = ftpc;
+        break;
+      case I_MRMOVQ:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction addres\n", s->pc);
+            return STAT_INS;
+        }
+        if (!reg_valid(hi1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, hi1);
+            return STAT_INS;
+        }
+        if (reg_valid(lo1)) 
+            cval += get_reg_val(s->r, lo1);
+        if (!get_word_val(s->m, cval, &val))
+            return STAT_ADR;
+        set_reg_val(s->r, hi1, val);
+        s->pc = ftpc;
+        break;
+      case I_ALU:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        argA = get_reg_val(s->r, hi1);
+        argB = get_reg_val(s->r, lo1);
+        val = compute_alu(lo0, argA, argB);
         set_reg_val(s->r, lo1, val);
-      s->pc = ftpc;
-      break;
-    case I_IRMOVQ:
-      if (!ok1) {
-          if (error_file)
+        s->cc = compute_cc(lo0, argA, argB);
+        s->pc = ftpc;
+        break;
+      case I_JMP:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (cond_holds(s->cc, lo0))
+            s->pc = cval;
+        else
+            s->pc = ftpc;
+        break;
+      case I_CALL:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        val = get_reg_val(s->r, REG_RSP) - 8;
+        set_reg_val(s->r, REG_RSP, val);
+        if (!set_word_val(s->m, val, ftpc)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid stack address 0x%llx\n", s->pc, val);
+            return STAT_ADR;
+        }
+        s->pc = cval;
+        break;
+      case I_RET:
+        /* Return Instruction.  Pop address from stack */
+        dval = get_reg_val(s->r, REG_RSP);
+        if (!get_word_val(s->m, dval, &val)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid stack address 0x%llx\n",
+                    s->pc, dval);
+            return STAT_ADR;
+        }
+        set_reg_val(s->r, REG_RSP, dval + 8);
+        s->pc = val;
+        break;
+      case I_PUSHQ:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!reg_valid(hi1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n", s->pc, hi1);
+            return STAT_INS;
+        }
+        val = get_reg_val(s->r, hi1);
+        dval = get_reg_val(s->r, REG_RSP) - 8;
+        set_reg_val(s->r, REG_RSP, dval);
+        if  (!set_word_val(s->m, dval, val)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid stack address 0x%llx\n", s->pc, dval);
+            return STAT_ADR;
+        }
+        s->pc = ftpc;
+        break;
+      case I_POPQ:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!reg_valid(hi1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n", s->pc, hi1);
+            return STAT_INS;
+        }
+        dval = get_reg_val(s->r, REG_RSP);
+        set_reg_val(s->r, REG_RSP, dval+8);
+        if (!get_word_val(s->m, dval, &val)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid stack address 0x%llx\n",
+                    s->pc, dval);
+            return STAT_ADR;
+        }
+        set_reg_val(s->r, hi1, val);
+        s->pc = ftpc;
+        break;
+      case I_IADDQ:
+        printf("we got this far\n");
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        printf("ok1\n");
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address",
+                    s->pc);
+            return STAT_INS;
+        }
+        printf("okc\n");
+        if (!reg_valid(lo1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, lo1);
+            return STAT_INS;
+        }
+        printf("farrrrrrrr\n");
+        argB = get_reg_val(s->r, lo1);
+        val = argB + cval;
+        set_reg_val(s->r, lo1, val);
+        s->cc = compute_cc(A_ADD, cval, argB);
+        s->pc = ftpc;
+        break;
+      default:
+        if (error_file)
             fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!okc) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address",
-                  s->pc);
-          return STAT_INS;
-      }
-      if (!reg_valid(lo1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n",
-                  s->pc, lo1);
-          return STAT_INS;
-      }
-      set_reg_val(s->r, lo1, cval);
-      s->pc = ftpc;
-      break;
-    case I_RMMOVQ:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!okc) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_INS;
-      }
-      if (!reg_valid(hi1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n",
-                  s->pc, hi1);
-          return STAT_INS;
-      }
-      if (reg_valid(lo1)) 
-          cval += get_reg_val(s->r, lo1);
-      val = get_reg_val(s->r, hi1);
-      if (!set_word_val(s->m, cval, val)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid data address 0x%llx\n",
-                  s->pc, cval);
-          return STAT_ADR;
-      }
-      s->pc = ftpc;
-      break;
-    case I_MRMOVQ:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!okc) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction addres\n", s->pc);
-          return STAT_INS;
-      }
-      if (!reg_valid(hi1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n",
-                  s->pc, hi1);
-          return STAT_INS;
-      }
-      if (reg_valid(lo1)) 
-          cval += get_reg_val(s->r, lo1);
-      if (!get_word_val(s->m, cval, &val))
-          return STAT_ADR;
-      set_reg_val(s->r, hi1, val);
-      s->pc = ftpc;
-      break;
-    case I_ALU:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      argA = get_reg_val(s->r, hi1);
-      argB = get_reg_val(s->r, lo1);
-      val = compute_alu(lo0, argA, argB);
-      set_reg_val(s->r, lo1, val);
-      s->cc = compute_cc(lo0, argA, argB);
-      s->pc = ftpc;
-      break;
-    case I_JMP:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!okc) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (cond_holds(s->cc, lo0))
-          s->pc = cval;
-      else
-          s->pc = ftpc;
-      break;
-    case I_CALL:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!okc) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      val = get_reg_val(s->r, REG_RSP) - 8;
-      set_reg_val(s->r, REG_RSP, val);
-      if (!set_word_val(s->m, val, ftpc)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid stack address 0x%llx\n", s->pc, val);
-          return STAT_ADR;
-      }
-      s->pc = cval;
-      break;
-    case I_RET:
-      /* Return Instruction.  Pop address from stack */
-      dval = get_reg_val(s->r, REG_RSP);
-      if (!get_word_val(s->m, dval, &val)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid stack address 0x%llx\n",
-                  s->pc, dval);
-          return STAT_ADR;
-      }
-      set_reg_val(s->r, REG_RSP, dval + 8);
-      s->pc = val;
-      break;
-    case I_PUSHQ:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!reg_valid(hi1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n", s->pc, hi1);
-          return STAT_INS;
-      }
-      val = get_reg_val(s->r, hi1);
-      dval = get_reg_val(s->r, REG_RSP) - 8;
-      set_reg_val(s->r, REG_RSP, dval);
-      if  (!set_word_val(s->m, dval, val)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid stack address 0x%llx\n", s->pc, dval);
-          return STAT_ADR;
-      }
-      s->pc = ftpc;
-      break;
-    case I_POPQ:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!reg_valid(hi1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n", s->pc, hi1);
-          return STAT_INS;
-      }
-      dval = get_reg_val(s->r, REG_RSP);
-      set_reg_val(s->r, REG_RSP, dval+8);
-      if (!get_word_val(s->m, dval, &val)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid stack address 0x%llx\n",
-                  s->pc, dval);
-          return STAT_ADR;
-      }
-      set_reg_val(s->r, hi1, val);
-      s->pc = ftpc;
-      break;
-    case I_IADDQ:
-      if (!ok1) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address\n", s->pc);
-          return STAT_ADR;
-      }
-      if (!okc) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid instruction address",
-                  s->pc);
-          return STAT_INS;
-      }
-      if (!reg_valid(lo1)) {
-          if (error_file)
-            fprintf(error_file,
-                  "PC = 0x%llx, Invalid register ID 0x%.1x\n",
-                  s->pc, lo1);
-          return STAT_INS;
-      }
-      argB = get_reg_val(s->r, lo1);
-      val = argB + cval;
-      set_reg_val(s->r, lo1, val);
-      s->cc = compute_cc(A_ADD, cval, argB);
-      s->pc = ftpc;
-      break;
-    default:
-      if (error_file)
-          fprintf(error_file,
-                "PC = 0x%llx, Invalid instruction %.2x\n", s->pc, byte0);
-      return STAT_INS;
+                  "PC = 0x%llx, Invalid instruction %.2x\n", s->pc, byte0);
+        return STAT_INS;
     }
     return STAT_AOK;
 }
