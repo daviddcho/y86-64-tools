@@ -7,17 +7,20 @@
 # Array of 6 elements
   .align 8
 array:  
-  .quad 0x0000000000000002
+  .quad 0x0000000000000000
   .quad 0x0000000000000004
   .quad 0xfffffffffffffffd
   .quad 0x0000000000000000
   .quad 0x0000000000000004
-  .quad 0xfffffffffffffffd
-
+  .quad 0xffffffffffffffff
+  .quad 0x0000000000000002
+  .quad 0x0000000000000000
+  .quad 0x0000000000000001
+  .quad 0x0000000000000005
 
 main: 
   irmovq array,%rdi
-  irmovq $6,%rsi
+  irmovq $10,%rsi
   call sum              # sum(array, 4)
   ret
 
@@ -31,17 +34,20 @@ sum:
   jmp test              # Goto test
 loop: 
   mrmovq (%rdi),%r10    # Get *start
+  andq %r10, %r10
   jl arith
   addq %r10,%rax        # Add to sum
   addq %r8,%rdi         # start++
   subq %r9,%rsi         # count--.  Set CC
-arith:
-  subq %r10,%rax        # Add to sum
-  addq %r8,%rdi         # start++
-  jmp loop
 test: 
   jne loop              # Stop when 0
   ret                   # Return
+arith:
+  subq %r10,%rax        # Sub from sum
+  addq %r8,%rdi         # start++
+  subq %r9,%rsi         # count--.  Set CC
+  jmp loop
+
 
 # Stack starts here and grows to lower addresses
   .pos 0x200
