@@ -35,7 +35,7 @@ typedef enum { I_HALT, I_NOP, I_RRMOVQ, I_IRMOVQ, I_RMMOVQ, I_MRMOVQ,
              I_IADDQ, I_ISHLQ, I_ISHAQ, I_POP2 } itype_t;
 
 /* Different ALU operations */
-typedef enum { A_ADD, A_SUB, A_AND, A_XOR, A_NONE } alu_t;
+typedef enum { A_ADD, A_SUB, A_AND, A_XOR, A_SHLQ, A_SHAQ, A_NONE } alu_t;
 
 /* Default function code */
 typedef enum { F_NONE } fun_t;

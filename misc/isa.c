@@ -475,6 +475,11 @@ word_t compute_alu(alu_t op, word_t argA, word_t argB)
     case A_XOR:
       val = argA^argB;
       break;
+    case A_SHLQ:
+      val = argA<<argB;
+      break;
+    case A_SHAQ: 
+      val = argA>>argB;
     default:
       val = 0;
   }
@@ -499,6 +504,14 @@ cc_t compute_cc(alu_t op, word_t argA, word_t argB)
     case A_AND:
     case A_XOR:
       ovf = FALSE;
+      break;
+    case A_SHLQ:
+      ovf = (((word_t) argA < 0) == ((word_t) argB < 0)) &&
+        (((word_t) val < 0) != ((word_t) argA < 0));
+      break;
+    case A_SHAQ: 
+      ovf = (((word_t) argA < 0) == ((word_t) argB < 0)) &&
+        (((word_t) val < 0) != ((word_t) argA < 0));
       break;
     default:
       ovf = FALSE;
@@ -934,6 +947,61 @@ stat_t step_state(state_ptr s, FILE *error_file)
         s->cc = compute_cc(A_ADD, cval, argB);
         s->pc = ftpc;
         break;
+      case I_ISHLQ:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address",
+                    s->pc);
+            return STAT_INS;
+        }
+        if (!reg_valid(lo1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, lo1);
+            return STAT_INS;
+        }
+        argB = get_reg_val(s->r, lo1);
+        val = argB + cval;
+        set_reg_val(s->r, lo1, val);
+        s->cc = compute_cc(A_SHLQ, cval, argB);
+        s->pc = ftpc;
+        break;
+      case I_ISHAQ:
+        if (!ok1) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
+            return STAT_ADR;
+        }
+        if (!okc) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid instruction address",
+                    s->pc);
+            return STAT_INS;
+        }
+        if (!reg_valid(lo1)) {
+            if (error_file)
+              fprintf(error_file,
+                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
+                    s->pc, lo1);
+            return STAT_INS;
+        }
+        argB = get_reg_val(s->r, lo1);
+        val = argB + cval;
+        set_reg_val(s->r, lo1, val);
+        s->cc = compute_cc(A_SHAQ, cval, argB);
+        s->pc = ftpc;
+        break;
+
       default:
         if (error_file)
             fprintf(error_file,

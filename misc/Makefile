@@ -1,9 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -O1 -g
 LCFLAGS=-O1
-LEX = flex
+LEX=flex
 YACC=bison
-LEXLIB = -L /opt/homebrew/Cellar/gsl/2.7/lib #-lfl
+LEXLIB = -L /opt/homebrew/Cellar/gsl/2.7/lib#-lfl
 YAS=./yas
 
 all: yis yas hcl2c
