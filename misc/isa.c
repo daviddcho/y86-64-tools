@@ -908,14 +908,12 @@ stat_t step_state(state_ptr s, FILE *error_file)
         s->pc = ftpc;
         break;
       case I_IADDQ:
-        printf("we got this far\n");
         if (!ok1) {
             if (error_file)
               fprintf(error_file,
                     "PC = 0x%llx, Invalid instruction address\n", s->pc);
             return STAT_ADR;
         }
-        printf("ok1\n");
         if (!okc) {
             if (error_file)
               fprintf(error_file,
@@ -923,7 +921,6 @@ stat_t step_state(state_ptr s, FILE *error_file)
                     s->pc);
             return STAT_INS;
         }
-        printf("okc\n");
         if (!reg_valid(lo1)) {
             if (error_file)
               fprintf(error_file,
@@ -931,7 +928,6 @@ stat_t step_state(state_ptr s, FILE *error_file)
                     s->pc, lo1);
             return STAT_INS;
         }
-        printf("farrrrrrrr\n");
         argB = get_reg_val(s->r, lo1);
         val = argB + cval;
         set_reg_val(s->r, lo1, val);

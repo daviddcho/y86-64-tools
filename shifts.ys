@@ -36,6 +36,7 @@ sum:
 loop: 
   mrmovq (%rdi),%r10    # Get *start
   andq %r10, %r10
+  iaddq $10,%r14
   jl arith
   #ishlq %rbp,%r11
   #addq %r11,%rax
