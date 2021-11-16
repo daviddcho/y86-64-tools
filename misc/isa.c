@@ -92,6 +92,8 @@ instr_t instruction_set[] =
     {"pushq",  HPACK(I_PUSHQ, F_NONE) , 2, R_ARG, 1, 1, NO_ARG, 0, 0 },
     {"popq",   HPACK(I_POPQ, F_NONE) ,  2, R_ARG, 1, 1, NO_ARG, 0, 0 },
     {"iaddq",  HPACK(I_IADDQ, F_NONE), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
+    {"ishlq",  HPACK(I_ISHLQ, F_NONE), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
+    {"ishaq",  HPACK(I_ISHAQ, F_NONE), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
     /* this is just a hack to make the I_POP2 code have an associated name */
     {"pop2",   HPACK(I_POP2, F_NONE) , 0, NO_ARG, 0, 0, NO_ARG, 0, 0 },
 
