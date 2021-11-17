@@ -1,5 +1,10 @@
 #!/bin/bash
 (cd misc/ && make clean)
 (cd misc/ && make)
-./misc/yas shifts.ys
-./misc/yis shifts.yo
+#./misc/yas shifts.ys
+#./misc/yis shifts.yo
+#gcc shifts.c && ./a.out
+
+./misc/yas test.ys
+./misc/yis test.yo
+gcc test.c && ./a.out

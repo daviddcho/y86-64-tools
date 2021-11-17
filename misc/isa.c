@@ -478,13 +478,13 @@ word_t compute_alu(alu_t op, word_t argA, word_t argB)
       val = argA^argB;
       break;
     case A_SHLQ:
-      printf("%lld, %lld\n", argA, argB);
       if (argA < 0) {
         val = (signed) argB << argA;
       } else {
         val = (signed) argB >> argA;
+        printf("%lld, %lld\n", argA, argB);
+        printf("val: %llu\n", val);
       }
-      printf("val: %lld\n", val);
       break;
     case A_SHAQ: 
       if (argA < 0) {
@@ -982,6 +982,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
                     s->pc, lo1);
             return STAT_INS;
         }
+        printf("how??? many\n");
         argB = get_reg_val(s->r, lo1);
         val = compute_alu(lo0, cval, argB);
         set_reg_val(s->r, lo1, val);
