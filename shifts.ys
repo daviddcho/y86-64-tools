@@ -39,7 +39,7 @@ loop:
   andq %r10,%r10
   #iaddq $10,%r11
   jl arith
-  ishlq $100,%r10
+  ishlq $2,%r10
   addq %r10,%rax
   #addq %r10,%rax        # Add to sum
   addq %r8,%rdi         # start++
@@ -50,7 +50,7 @@ test:
 arith:
   xorq %r11,%r10 
   iaddq $1,%r10
-  ishaq $100,%r10
+  ishaq $2,%r10
   addq %r10,%rax
   #subq %r10,%rax        # Sub from sum
   addq %r8,%rdi         # start++

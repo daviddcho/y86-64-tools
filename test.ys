@@ -6,7 +6,10 @@
 main: 
   xorq %rax,%rax 
   irmovq $5,%r10
-  ishlq $100,%r10
+  #addq %r10,%rax
+  irmovq $2,%r11
+  ishlq $2,%r10
+  #shlq %r11,%r10
   addq %r10,%rax
    
   .pos 0x200

@@ -7,10 +7,8 @@ int main() {
   for (i = 0; i < size; i++) {
     if (A[i] < 0) 
       S += X << (-A[i]); 
-      //S -= A[i];
     else 
       S += X >> A[i];
-      //S += A[i];
   }
   printf("A:");
   for (i = 0; i < size; i++) 
