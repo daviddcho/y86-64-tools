@@ -41,7 +41,7 @@ typedef enum { A_ADD, A_SUB, A_AND, A_XOR, A_SHLQ, A_SHAQ, A_NONE } alu_t;
 typedef enum { F_NONE } fun_t;
 
 /* Return name of operation given its ID */
-char op_name(alu_t op);
+char *op_name(alu_t op);
 
 /* Different Jump conditions */
 typedef enum { C_YES, C_LE, C_L, C_E, C_NE, C_GE, C_G } cond_t;

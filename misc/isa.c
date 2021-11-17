@@ -440,18 +440,20 @@ void dump_reg(FILE *outfile, mem_t r) {
 }
 
 struct {
-    char symbol;
+    char *symbol;
     int id;
 } alu_table[A_NONE+1] = 
 {
-    {'+',   A_ADD},
-    {'-',   A_SUB},
-    {'&',   A_AND},
-    {'^',   A_XOR},
-    {'?',   A_NONE}
+    {"+",   A_ADD},
+    {"-",   A_SUB},
+    {"&",   A_AND},
+    {"^",   A_XOR},
+    {"<<",   A_SHLQ},
+    {">>",   A_SHAQ},
+    {"?",   A_NONE}
 };
 
-char op_name(alu_t op)
+char *op_name(alu_t op)
 {
   if (op < A_NONE)
     return alu_table[op].symbol;
@@ -480,6 +482,7 @@ word_t compute_alu(alu_t op, word_t argA, word_t argB)
       break;
     case A_SHAQ: 
       val = argA>>argB;
+      break;
     default:
       val = 0;
   }
@@ -669,7 +672,8 @@ stat_t step_state(state_ptr s, FILE *error_file)
     need_regids =
       (hi0 == I_RRMOVQ || hi0 == I_ALU || hi0 == I_PUSHQ ||
        hi0 == I_POPQ || hi0 == I_IRMOVQ || hi0 == I_RMMOVQ ||
-       hi0 == I_MRMOVQ || hi0 == I_IADDQ);
+       hi0 == I_MRMOVQ || hi0 == I_IADDQ || hi0 == I_ISHLQ || 
+       hi0 == I_ISHAQ);
 
     if (need_regids) {
       ok1 = get_byte_val(s->m, ftpc, &byte1);
@@ -680,7 +684,8 @@ stat_t step_state(state_ptr s, FILE *error_file)
 
     need_imm =
       (hi0 == I_IRMOVQ || hi0 == I_RMMOVQ || hi0 == I_MRMOVQ ||
-       hi0 == I_JMP || hi0 == I_CALL || hi0 == I_IADDQ);
+       hi0 == I_JMP || hi0 == I_CALL || hi0 == I_IADDQ || 
+       hi0 == I_ISHLQ || hi0 == I_ISHAQ);
 
     if (need_imm) {
       okc = get_word_val(s->m, ftpc, &cval);
