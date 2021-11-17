@@ -5,10 +5,9 @@
 
 main: 
   xorq %rax,%rax 
-  irmovq $5,%r10
-  #addq %r10,%rax
-  irmovq $2,%r11
-  ishlq $2,%r10
+  irmovq $23,%r10
+  ishaq $2,%r10
+  #irmovq $2,%r11
   #shlq %r11,%r10
   addq %r10,%rax
    
