@@ -92,8 +92,8 @@ instr_t instruction_set[] =
     {"pushq",  HPACK(I_PUSHQ, F_NONE) , 2, R_ARG, 1, 1, NO_ARG, 0, 0 },
     {"popq",   HPACK(I_POPQ, F_NONE) ,  2, R_ARG, 1, 1, NO_ARG, 0, 0 },
     {"iaddq",  HPACK(I_IADDQ, F_NONE), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
-    {"ishlq",  HPACK(I_ISHLQ, F_NONE), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
-    {"ishaq",  HPACK(I_ISHAQ, F_NONE), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
+    {"ishlq",  HPACK(I_ISH, A_SHLQ), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
+    {"ishaq",  HPACK(I_ISH, A_SHAQ), 10, I_ARG, 2, 8, R_ARG, 1, 0 },
     /* this is just a hack to make the I_POP2 code have an associated name */
     {"pop2",   HPACK(I_POP2, F_NONE) , 0, NO_ARG, 0, 0, NO_ARG, 0, 0 },
 
@@ -478,10 +478,20 @@ word_t compute_alu(alu_t op, word_t argA, word_t argB)
       val = argA^argB;
       break;
     case A_SHLQ:
-      val = argA<<argB;
+      printf("%lld, %lld\n", argA, argB);
+      if (argA < 0) {
+        val = (signed) argB << argA;
+      } else {
+        val = (signed) argB >> argA;
+      }
+      printf("val: %lld\n", val);
       break;
     case A_SHAQ: 
-      val = argA>>argB;
+      if (argA < 0) {
+        val = (unsigned) argB << argA;
+      } else {
+        val = (unsigned) argB >> argA;
+      }
       break;
     default:
       val = 0;
@@ -672,8 +682,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
     need_regids =
       (hi0 == I_RRMOVQ || hi0 == I_ALU || hi0 == I_PUSHQ ||
        hi0 == I_POPQ || hi0 == I_IRMOVQ || hi0 == I_RMMOVQ ||
-       hi0 == I_MRMOVQ || hi0 == I_IADDQ || hi0 == I_ISHLQ || 
-       hi0 == I_ISHAQ);
+       hi0 == I_MRMOVQ || hi0 == I_IADDQ || hi0 == I_ISH);
 
     if (need_regids) {
       ok1 = get_byte_val(s->m, ftpc, &byte1);
@@ -685,7 +694,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
     need_imm =
       (hi0 == I_IRMOVQ || hi0 == I_RMMOVQ || hi0 == I_MRMOVQ ||
        hi0 == I_JMP || hi0 == I_CALL || hi0 == I_IADDQ || 
-       hi0 == I_ISHLQ || hi0 == I_ISHAQ);
+       hi0 == I_ISH);
 
     if (need_imm) {
       okc = get_word_val(s->m, ftpc, &cval);
@@ -952,7 +961,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
         s->cc = compute_cc(A_ADD, cval, argB);
         s->pc = ftpc;
         break;
-      case I_ISHLQ:
+      case I_ISH:
         if (!ok1) {
             if (error_file)
               fprintf(error_file,
@@ -974,39 +983,11 @@ stat_t step_state(state_ptr s, FILE *error_file)
             return STAT_INS;
         }
         argB = get_reg_val(s->r, lo1);
-        val = argB + cval;
+        val = compute_alu(lo0, cval, argB);
         set_reg_val(s->r, lo1, val);
-        s->cc = compute_cc(A_SHLQ, cval, argB);
+        s->cc = compute_cc(lo0, cval, argB);
         s->pc = ftpc;
         break;
-      case I_ISHAQ:
-        if (!ok1) {
-            if (error_file)
-              fprintf(error_file,
-                    "PC = 0x%llx, Invalid instruction address\n", s->pc);
-            return STAT_ADR;
-        }
-        if (!okc) {
-            if (error_file)
-              fprintf(error_file,
-                    "PC = 0x%llx, Invalid instruction address",
-                    s->pc);
-            return STAT_INS;
-        }
-        if (!reg_valid(lo1)) {
-            if (error_file)
-              fprintf(error_file,
-                    "PC = 0x%llx, Invalid register ID 0x%.1x\n",
-                    s->pc, lo1);
-            return STAT_INS;
-        }
-        argB = get_reg_val(s->r, lo1);
-        val = argB + cval;
-        set_reg_val(s->r, lo1, val);
-        s->cc = compute_cc(A_SHAQ, cval, argB);
-        s->pc = ftpc;
-        break;
-
       default:
         if (error_file)
             fprintf(error_file,
