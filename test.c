@@ -6,7 +6,7 @@ typedef long long int word_t;
 int main() {
   word_t x;
   word_t cval = 2;
-  word_t argB = 10;
+  word_t argB = -1;
   // shift argb by cval
   //printf("shift %lld by %lld\n", argB, cval);
   printf("shift 0x%llx by 0x%llx\n", argB, cval);
