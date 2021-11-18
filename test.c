@@ -13,16 +13,16 @@ int main() {
   printf("****************\n");
 
   // logical tests
-  x = (signed) argB >> cval;
-  printf("logical right: 0x%llx\n", x);
-  x = (signed) argB << cval;
-  printf("logical left: 0x%llx\n", x);
+  x = (unsigned) argB >> cval;
+  printf("logical right: 0x%llx, %lld\n", x, x);
+  x = (unsigned) argB << cval;
+  printf("logical left: 0x%llx, %lld\n", x, x);
 
   // arithmetic tests
-  x = (unsigned) argB >> cval;
-  printf("arithmetic right: 0x%llx\n", x);
-  x = (unsigned) argB << cval;
-  printf("arithmetic left: 0x%llx\n", x);
+  x = (signed) argB >> cval;
+  printf("arithmetic right: 0x%llx, %lld\n", x, x);
+  x = (signed) argB << cval;
+  printf("arithmetic left: 0x%llx, %lld\n", x, x);
 
   //unsigned char b = PACK_CC(1,0,0);
   //printf("%u\n", b);
