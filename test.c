@@ -6,9 +6,8 @@ typedef long long int word_t;
 int main() {
   word_t x;
   word_t cval = 2;
-  word_t argB = -1;
+  word_t argB = 100;
   // shift argb by cval
-  //printf("shift %lld by %lld\n", argB, cval);
   printf("shift 0x%llx by 0x%llx\n", argB, cval);
   printf("****************\n");
 
@@ -27,3 +26,9 @@ int main() {
   //unsigned char b = PACK_CC(1,0,0);
   //printf("%u\n", b);
 }
+
+
+/* 
+https://stackoverflow.com/questions/44694957/the-difference-between-logical-shift-right-arithmetic-shift-right-and-rotate-r
+https://stackoverflow.com/questions/7622/are-the-shift-operators-arithmetic-or-logical-in-c/22734721
+*/
