@@ -3,11 +3,15 @@
   call main 
   halt
 
+  .align 8
+array:  
+  .quad 0xffffffffffffffff
+
 main: 
   xorq %rax,%rax 
-  irmovq $20,%r10
-  ishlq $-1,%r10
-  #irmovq $2,%r11
+  irmovq array,%rdi
+  mrmovq (%rdi),%r10
+  ishlq $1,%r10
   #shlq %r11,%r10
   addq %r10,%rax
    

@@ -8,10 +8,10 @@ typedef long long int word_t;
 int main() {
   word_t x;
   word_t cval = 1;
-  //word_t argb = LLONG_MAX;
-  word_t argb = -1;
+  word_t argb = 20;
+  //word_t argb = ULLONG_MAX-1;
+  //word_t argb = -1;
   printf("argb 0x%llx, 0x%llx\n", (unsigned long long) argb, (signed long long) argb); 
-  printf("argb 0x%x, 0x%x\n", (unsigned) argb, (signed) argb); 
   // shift argb by cval
   printf("shift 0x%llx by 0x%llx\n", argb, cval);
   printf("****************\n");
@@ -20,16 +20,15 @@ int main() {
   x = (unsigned long long) argb >> cval;
   //x = argb >> cval;
   printf("logical right: 0x%llx, %lld\n", x, x);
-  x = (unsigned long long) argb << cval;
+  unsigned long long ux = (unsigned long long) argb << cval;
   //x = argb << cval;
-  printf("logical left: 0x%llx, %lld\n", x, x);
-  printf("%lu bytes\n", sizeof(x));
+  printf("logical left: 0x%llx, %lld\n", ux, ux);
+  printf("%lu bytes\n", sizeof(ux));
 
   // arithmetic tests
   //x = (signed long long) argb >> cval;
   x = argb >> cval;
   printf("arithmetic right: 0x%llx, %lld\n", x, x);
-  printf("%lu\n", sizeof(x));
   //x = (signed long long) argb << cval;
   x = argb << cval;
   printf("arithmetic left: 0x%llx, %lld\n", x, x);
