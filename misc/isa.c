@@ -477,6 +477,15 @@ word_t compute_alu(alu_t op, word_t argA, word_t argB)
     case A_XOR:
       val = argA^argB;
       break;
+    default:
+      val = 0;
+  }
+  return val;
+}
+
+word_t compute_alsu(alu_t op, word_t argA, word_t argB) {
+  word_t val; 
+  switch(op) {
     case A_SHLQ:
       printf("%lld, %lld\n", argB, argA);
       if (argA < 0) {
@@ -494,15 +503,37 @@ word_t compute_alu(alu_t op, word_t argA, word_t argB)
       }
       printf("val: %lld\n", val);
       break;
-    default:
+    default: 
       val = 0;
   }
   return val;
 }
 
+cc_t compute_shift_cc(alu_t op, word_t argA, word_t argB) {
+  word_t val;
+  val = compute_alsu(op, argA, argB);
+  bool_t zero = (val == 0);
+  bool_t sign = ((word_t)val < 0);
+  bool_t ovf;
+  switch(op) {
+    case A_SHLQ:
+      ovf = (((word_t) argA < 0) == ((word_t) argB < 0)) &&
+        (((word_t) val < 0) != ((word_t) argA < 0));
+      break;
+    case A_SHAQ: 
+      ovf = (((word_t) argA < 0) == ((word_t) argB < 0)) &&
+        (((word_t) val < 0) != ((word_t) argA < 0));
+      break;
+    default:
+      ovf = FALSE;
+  }
+  return PACK_CC(zero,sign,ovf);
+}
+
 cc_t compute_cc(alu_t op, word_t argA, word_t argB)
 {
-  word_t val = compute_alu(op, argA, argB);
+  word_t val;
+  val = compute_alu(op, argA, argB);
   bool_t zero = (val == 0);
   bool_t sign = ((word_t)val < 0);
   bool_t ovf;
@@ -518,14 +549,6 @@ cc_t compute_cc(alu_t op, word_t argA, word_t argB)
     case A_AND:
     case A_XOR:
       ovf = FALSE;
-      break;
-    case A_SHLQ:
-      ovf = (((word_t) argA < 0) == ((word_t) argB < 0)) &&
-        (((word_t) val < 0) != ((word_t) argA < 0));
-      break;
-    case A_SHAQ: 
-      ovf = (((word_t) argA < 0) == ((word_t) argB < 0)) &&
-        (((word_t) val < 0) != ((word_t) argA < 0));
       break;
     default:
       ovf = FALSE;
@@ -987,9 +1010,9 @@ stat_t step_state(state_ptr s, FILE *error_file)
             return STAT_INS;
         }
         argB = get_reg_val(s->r, lo1);
-        val = compute_alu(lo0, cval, argB);
+        val = compute_alsu(lo0, cval, argB);
         set_reg_val(s->r, lo1, val);
-        s->cc = compute_cc(lo0, cval, argB);
+        s->cc = compute_shift_cc(lo0, cval, argB);
         s->pc = ftpc;
         break;
       case I_SHQ:
@@ -1015,9 +1038,9 @@ stat_t step_state(state_ptr s, FILE *error_file)
         }
         argA = get_reg_val(s->r, hi1);
         argB = get_reg_val(s->r, lo1);
-        val = compute_alu(lo0, argA, argB);
+        val = compute_alsu(lo0, argA, argB);
         set_reg_val(s->r, lo1, val);
-        s->cc = compute_cc(lo0, argA, argB);
+        s->cc = compute_shift_cc(lo0, argA, argB);
         s->pc = ftpc;
         break;
       default:
