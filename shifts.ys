@@ -4,7 +4,7 @@
   call main             # Execute main program
   halt                  # Terminate program 
 
-# Array of 6 elements
+# Array of 10 elements
   .align 8
 array:  
   .quad 0x0000000000000000
@@ -22,10 +22,9 @@ main:
   irmovq array,%rdi
   irmovq $10,%rsi       # array length
   irmovq $100,%rbp      # Constant 100
-  call sum              # sum(array, 4)
+  call sum              # sum()
   ret
 
-# long sum(long *start, long count)
 # start in %rdi, count in %rsi
 sum:  
   irmovq $8,%r8         # Constant 8

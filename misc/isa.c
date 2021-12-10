@@ -513,22 +513,20 @@ word_t compute_alsu(alu_t op, word_t argA, word_t argB) {
   word_t val; 
   switch(op) {
     case A_SHLQ:
-      printf("shift %lld by %lld\n", argB, argA);
       if (argA < 0) {
         val = (unsigned long long) argB << -argA;
       } else {
         val = (unsigned long long) argB >> argA;
       }
-      printf("val: %lld\n", val);
+      printf("shlq %lld by %lld = %lld\n", argB, argA, val);
       break;
     case A_SHAQ: 
-      printf("shift %lld by %lld\n", argB, argA);
       if (argA < 0) {
         val = (signed long long) argB << -argA;
       } else {
         val = (signed long long) argB >> argA;
       }
-      printf("val: %lld\n", val);
+      printf("shaq %lld by %lld = %lld\n", argB, argA, val);
       break;
     default: 
       val = 0;
@@ -853,8 +851,8 @@ stat_t step_state(state_ptr s, FILE *error_file)
         argA = get_reg_val(s->r, hi1);
         argB = get_reg_val(s->r, lo1);
         val = compute_alu(lo0, argA, argB);
-        printf("addval: %lld\n", val);
-        printf("%d\n", lo1);
+        //printf("alu cval: %lld\n", val);
+        //printf("lo1 %d\n", lo1);
         set_reg_val(s->r, lo1, val);
         s->cc = compute_cc(lo0, argA, argB);
         s->pc = ftpc;

@@ -4,13 +4,19 @@
 int main() {
   int A[size] = {0, 4, -3, 0, 4, -1, 2, 0, 1, 5};
   int X = 2, S = 0, i;
+  int val;
   for (i = 0; i < size; i++) {
-    if (A[i] < 0) 
+    if (A[i] < 0) {
       //S += X << (-A[i]); 
-      S += -A[i] << X;
-    else 
+      val = -A[i] << X;
+      S += val;
+      printf("shift %d by %d = %d\n", -A[i], X, val);
+    } else { 
       //S += X >> A[i];
-      S += A[i] >> X;
+      val = A[i] >> X;
+      S += val;
+      printf("shift %d by %d = %d\n", A[i], X, val);
+    }
   }
   printf("A:");
   for (i = 0; i < size; i++) 
