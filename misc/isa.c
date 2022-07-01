@@ -518,7 +518,7 @@ word_t compute_alsu(alu_t op, word_t argA, word_t argB) {
       } else {
         val = (unsigned long long) argB >> argA;
       }
-      printf("shlq %lld by %lld = %lld\n", argB, argA, val);
+      //printf("shlq %lld by %lld = %lld\n", argB, argA, val);
       break;
     case A_SHAQ: 
       if (argA < 0) {
@@ -526,7 +526,7 @@ word_t compute_alsu(alu_t op, word_t argA, word_t argB) {
       } else {
         val = (signed long long) argB >> argA;
       }
-      printf("shaq %lld by %lld = %lld\n", argB, argA, val);
+      //printf("shaq %lld by %lld = %lld\n", argB, argA, val);
       break;
     default: 
       val = 0;
@@ -754,7 +754,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
             return STAT_INS;
         }
         val = get_reg_val(s->r, hi1);
-        if (cond_holds(s->cc, lo0))
+        if (cond_holds(s->cc, (cond_t) lo0))
           set_reg_val(s->r, lo1, val);
         s->pc = ftpc;
         break;
@@ -870,7 +870,7 @@ stat_t step_state(state_ptr s, FILE *error_file)
                     "PC = 0x%llx, Invalid instruction address\n", s->pc);
             return STAT_ADR;
         }
-        if (cond_holds(s->cc, lo0))
+        if (cond_holds(s->cc, (cond_t) lo0))
             s->pc = cval;
         else
             s->pc = ftpc;

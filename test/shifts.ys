@@ -46,7 +46,7 @@ test:
   jne loop              # Stop when 0
   ret                   # Return
 arith:
-  xorq %r11,%r10 
+  xorq %r11,%r10        # xor %r10 to positive
   ishaq $-2,%r10
   addq %r10,%rax
   addq %r8,%rdi         # start++

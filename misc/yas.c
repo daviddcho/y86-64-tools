@@ -396,7 +396,7 @@ void finish_line()
 
     /* Here's where we really process the instructions */
     code[0] = instr->code;
-    code[1] = HPACK(REG_NONE, REG_NONE);
+    code[1] = (char) HPACK(REG_NONE, REG_NONE);
     switch(instr->arg1) {
     case R_ARG:
       get_reg(instr->arg1pos, instr->arg1hi);

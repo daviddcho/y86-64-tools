@@ -1,8 +1,9 @@
 #!/bin/bash
-(cd misc/ && make clean)
-(cd misc/ && make)
-./misc/yas shifts.ys
-./misc/yis shifts.yo
+(cd ../misc/ && make clean)
+(cd ../misc/ && make)
+echo "**** BEGIN TEST ****"
+../misc/yas shifts.ys
+../misc/yis shifts.yo
 gcc shifts.c && ./a.out
 
 #./misc/yas test.ys

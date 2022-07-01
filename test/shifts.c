@@ -7,15 +7,13 @@ int main() {
   int val;
   for (i = 0; i < size; i++) {
     if (A[i] < 0) {
-      //S += X << (-A[i]); 
       val = -A[i] << X;
       S += val;
-      printf("shift %d by %d = %d\n", -A[i], X, val);
+      //printf("shift %d by %d = %d\n", -A[i], X, val);
     } else { 
-      //S += X >> A[i];
       val = A[i] >> X;
       S += val;
-      printf("shift %d by %d = %d\n", A[i], X, val);
+      //printf("shift %d by %d = %d\n", A[i], X, val);
     }
   }
   printf("A:");

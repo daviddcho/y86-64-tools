@@ -11,5 +11,6 @@ hcl.tab.h
 lex.yy.c 
 yas-grammar.c
 
-WRITEUP*
+docs
+*.zip
 
