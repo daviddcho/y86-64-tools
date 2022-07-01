@@ -1,3 +1,11 @@
+USAGE:
+  ishlq v, rb
+  ishaq v, rb
+
+  shifts register rb by v bits
+  postive v for right shift
+  negative v for left shift
+
 /***********************************************************************
  * Y86-64 Tools (Student Distribution)
  *

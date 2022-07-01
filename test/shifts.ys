@@ -37,8 +37,8 @@ loop:
   mrmovq (%rdi),%r10    # Get *start
   andq %r10,%r10        # Returns %r10 
   #iaddq $10,%r11       
-  jl arith              # If ret is negative, do arithmetic shift
-  ishlq $2,%r10
+  jl arith
+  ishlq $2,%r10         # logical right shift
   addq %r10,%rax
   addq %r8,%rdi         # start++
   subq %r9,%rsi         # count--.  Set CC
@@ -47,7 +47,7 @@ test:
   ret                   # Return
 arith:
   xorq %r11,%r10        # xor %r10 to positive
-  ishaq $-2,%r10
+  ishaq $-2,%r10        # arithmetic left shift
   addq %r10,%rax
   addq %r8,%rdi         # start++
   subq %r9,%rsi         # count--.  Set CC
