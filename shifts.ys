@@ -9,10 +9,10 @@
 array:  
   .quad 0x0000000000000000
   .quad 0x0000000000000004
-  .quad 0xfffffffffffffffd
+  .quad 0xfffffffffffffffc
   .quad 0x0000000000000000
   .quad 0x0000000000000004
-  .quad 0xffffffffffffffff
+  .quad 0xfffffffffffffffe
   .quad 0x0000000000000002
   .quad 0x0000000000000000
   .quad 0x0000000000000001
