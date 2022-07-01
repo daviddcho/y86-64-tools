@@ -35,9 +35,9 @@ sum:
   jmp test              # Goto test
 loop: 
   mrmovq (%rdi),%r10    # Get *start
-  andq %r10,%r10
-  #iaddq $10,%r11
-  jl arith
+  andq %r10,%r10        # Returns %r10 
+  #iaddq $10,%r11       
+  jl arith              # If ret is negative, do arithmetic shift
   ishlq $2,%r10
   addq %r10,%rax
   addq %r8,%rdi         # start++

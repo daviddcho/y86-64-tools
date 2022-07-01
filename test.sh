@@ -10,4 +10,3 @@ gcc shifts.c && ./a.out
 #gcc test.c && ./a.out
 #./misc/yas test_ovf.ys
 #./misc/yis test_ovf.yo
-
